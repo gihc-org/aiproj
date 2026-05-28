@@ -7,6 +7,28 @@ Baggrund: I `~/projects/ipfs-apps` blev guidelines ikke fulgt. Løsningen blev e
 Claude-hook, men det virker ikke for Aider/codex. Håndhævelsen skal flyttes ud af
 agenten og ned i filsystem, git og CI.
 
+## Nøgleindsigt fra `~/projects/yargent/referater/2026-05-27.md`
+
+- **Passiv tekst i kontekst er ikke tilstrækkeligt.** TL;DR-tjekliste øverst i
+  `testing-and-docs.md` havde ingen mærkbar effekt — DeepSeek ignorerede den alligevel.
+- **Sproglige instruktioner i system-prompt virker heller ikke alene.** Instruktionen
+  "walk every checklist item explicitly" blev ikke fulgt; modellen dykkede direkte ned
+  i opgaven.
+- **Modellen "glemmer" AGENTS.md midt i en session.** Den læses ved start, men er
+  ude af fokus under selve implementeringen.
+- **Strukturel håndhævelse er det mest lovende.** Yargents `diagnostic.rs` scanner
+  diff'en før commit og spørger "commit anyway?" — det afbryder på det rigtige tidspunkt.
+  Se `~/projects/yargent/src/diagnostic.rs` som reference-implementation.
+
+**Konsekvens for dette projekt:**
+- Lag 1 (AGENTS.md + `@`-includes) er **dokumentation**, ikke håndhævelse. Forvent ikke at
+  det alene sikrer compliance.
+- Al reel håndhævelse skal ligge i Lag 2 og Lag 3 — tooling der **afbryder og spørger**
+  på nøglepunkter (før commit, efter implementering).
+- Token-problemet ("for tungt at inkludere alt") løses af frontmatter + selector-script:
+  inkludér kun relevante guidelines. Men det løser ikke "glemt midt i session" — dét
+  kræver aktiv kørsel af `check.sh` ved nøglepunkter.
+
 ## 1. Designe det neutrale workflow
 
 - [ ] Beslut tre-lags-modellen konkret:
