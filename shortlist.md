@@ -77,7 +77,7 @@ De nuværende filer (`security.md`, `rust-axum.md`, `webrtc.md`, `web-frontend.m
 1. ~~**Opret `testing-strategy.md`**~~ ✅ oprettet 2026-05-28
 2. ~~**Split ADR-0014 og 0015**~~ ✅ oprettet 2026-05-28 → 0014, 0015, 0024, 0025
 3. ~~**Opret `open-source.md`**~~ ✅ oprettet 2026-05-28
-4. **Testkrav ind i ADR-0002, 0006, 0007, 0011** — sikkerhedskritiske, lav-hængende frugt
-5. **Opret `ci-cd.md`** — `cargo test`, `cargo audit`, OWASP ZAP, `caddy validate`
-6. **Generaliser ADR-0001, 0004, 0017** — tættest på at være fuldt generelle allerede
-7. **Ny logging + secrets ADR** — nu spredt uden kohærent princip
+4. ~~**Testkrav ind i ADR-0002, 0006, 0007, 0011**~~ ✅ oprettet 2026-05-28
+5. ~~**Opret `ci-cd.md`**~~ ✅ oprettet 2026-05-28
+6. ~~**Generaliser ADR-0001, 0004, 0017**~~ ✅ oprettet 2026-05-28
+7. ~~**Ny logging + secrets ADR**~~ ✅ ADR-0026 oprettet 2026-05-28
