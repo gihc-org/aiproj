@@ -1,0 +1,64 @@
+Fra guidelines til håndhævelse — da jeg opdagede at regler ingen virkning har, hvis ingen husker dem
+
+
+"Passiv tekst i kontekst er ikke tilstrækkeligt."
+
+Det er konklusionen fra en session, hvor jeg prøvede at få en AI-agent til at følge en tjekliste, jeg havde lagt øverst i min guidelines-fil. Agenten ignorerede den fuldstændigt og dykkede direkte ned i opgaven.
+
+
+Det var ikke første gang. Jeg havde bygget et solidt fundament af ADRs og guidelines — som jeg beskrev i mit forrige indlæg. Og alligevel oplevede jeg igen og igen det samme: projektet startede med fuld kontekst, men et stykke inde i sessionen begyndte agenten at glemme reglerne. Tests manglede. Sikkerhedsovervejelser blev sprunget over. Arkitektoniske beslutninger blev truffet forfra.
+
+Context rot, som fænomenet kaldes. Jo længere en session varer, jo mere fortyndes den tidlige kontekst.
+
+
+▸ Første tanke: automatiske checks i et shell-script
+
+Mit første instinkt var et pre-commit hook-script der tjekkede om testfiler var rørt, om der var åbenlyse secrets i koden. Simpelt, sprog-agnostisk, hurtigt.
+
+Men jeg stødte hurtigt på to problemer:
+
+Det første: for at håndtere Rust, Python og JavaScript korrekt, ville jeg ende med en voksende liste af sprogspecifikke mønstre — alle med edge cases. Et vedligeholdelsesmareridt.
+
+Det andet — og vigtigere: der er ingen semantisk forbindelse mellem et shell-script og teksten i en ADR. Scriptet kan se at auth.rs er ændret og at ingen testfil er rørt. Men det kan ikke se om ADR-0007's krav om log-sanitering faktisk er overholdt i den konkrete kode.
+
+
+▸ Den rigtige løsning: lad en LLM gøre reviewet
+
+Erkendelsen var enkel: det kræver noget der forstår både diff'en og ADR-teksten på samme tid.
+
+En pre-commit hook er bare et shell-script. Det kan sagtens kalde en LLM.
+
+Flowet blev:
+1. git commit udløser hook'en
+2. Hook'en henter den staged diff
+3. Hook'en læser de guidelines og ADRs der er relevante for projektet via AGENTS.md
+4. Claude får diff + regler og returnerer: VERDICT: APPROVED eller en liste af konkrete overtrædelser med filnavne og linjenumre
+5. Ved concerns: commit afvises med en klar besked om hvad der skal rettes
+
+Resultatet er uafhængigt af sprog og agent. Uanset om det er Aider, codex eller Claude Code der laver commit'et — reviewet kører.
+
+
+▸ Første rigtige test
+
+Første gang jeg testede det på et af mine projekter, flagede Claude fire ting i mit eget commit:
+
+- Section headers i shell-scriptet beskrev hvad koden gør (# ── Konfiguration ──)
+- Ny feature uden tests
+- AGENTS.md ikke opdateret i samme commit
+- Feature implementeret uden forudgående TODO-entry
+
+Tre af fire var rimelige. Én var et false positive — section headers i shell-scripts er navigation, ikke forklaring. Jeg opdaterede guidelines og forsøgte igen.
+
+Det er præcis den slags feedback der aldrig kom konsekvent fra agenten alene.
+
+
+▸ Hvad det har ændret
+
+Håndhævelse er ikke længere afhængig af at agenten husker reglerne. Den sidder i git, kører ved hvert commit, og er semantisk — ikke syntaktisk.
+
+Det er ikke en perfekt løsning. `git commit --no-verify` eksisterer. Og reviewet er kun så godt som de ADRs og guidelines der er skrevet. Men det er en langt mere robust model end at håbe på at konteksten holder sig frisk nok.
+
+Guidelines er stadig dokumentation. Pre-commit hook'en er håndhævelsen.
+
+
+Jeg er stadig nysgerrig: er der andre der har løst context rot på en anden måde? Og hvad er jeres erfaringer med at lade en LLM reviewe kode som en del af commit-flowet?

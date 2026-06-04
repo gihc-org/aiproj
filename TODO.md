@@ -31,10 +31,10 @@ agenten og ned i filsystem, git og CI.
 
 ## 1. Designe det neutrale workflow
 
-- [ ] Beslut tre-lags-modellen konkret:
-  - [ ] Lag 1 — agenten ser reglerne via `AGENTS.md` + `@`-includes (eksisterer)
-  - [ ] Lag 2 — `pre-commit`-framework eller `.git/hooks/pre-commit` der tjekker konkrete regler
-  - [ ] Lag 3 — `scripts/check.sh` i hvert projekt, kørbart af både agent og menneske
+- [x] Beslut tre-lags-modellen konkret:
+  - [x] Lag 1 — agenten ser reglerne via `AGENTS.md` + `@`-includes (eksisterer)
+  - [x] Lag 2 — raw `.git/hooks/pre-commit` der kalder `scripts/check.sh`
+  - [x] Lag 3 — `scripts/check.sh` kørbart af både agent og menneske
 - [ ] Definér YAML-frontmatter-format til guidelines og ADRs (`applies_when:`, `tags:`, `status:`)
 - [ ] Beslut hvordan "potentielt relevant senere" markeres i AGENTS.md (én sektion vs. tags vs. frontmatter)
 - [ ] Skriv designet ned som ny guideline i `~/projects/guidelines/` (f.eks. `tool-neutral-enforcement.md`)
@@ -66,14 +66,14 @@ projekts `./kontekst/`), og hvad er det generelle mønster (bliver tilbage)?
 
 ## 4. Bygge selve håndhævelsen
 
-- [ ] Lav skabelon til `scripts/check.sh` (kan kopieres ind i nye projekter)
-- [ ] Lav skabelon til `.pre-commit-config.yaml` eller `.git/hooks/pre-commit`
-- [ ] Identificér hvilke konkrete regler kan tjekkes automatisk (lint, grep-patterns, fil-eksistens)
-- [ ] Dokumentér hvilke regler der *ikke* kan håndhæves automatisk og kun lever som tekst
-- [ ] Test på `ipfs-apps` (det projekt hvor det oprindeligt fejlede) at workflowet virker uden Claude-hooken
+- [x] Lav skabelon til `scripts/check.sh` — semantisk LLM-review af staged diff mod AGENTS.md @-includes
+- [x] Lav `scripts/install-hooks.sh` der kopierer check.sh og installerer pre-commit hook i målprojekt
+- [x] Besluttet: håndhævelse via LLM-review, ikke syntaktiske checks — sprog-agnostisk og semantisk forbundet til ADR-teksten
+- [x] Dokumenteret: syntaktiske checks (lint, grep) kan ikke håndhæve ADR-intent; kun LLM-review kan det
+- [x] Test på `ipfs-apps` — hook kørte, Claude fandt reelle concerns, false positive håndteret via guideline-opdatering
 
 ## 5. Migrering af eksisterende projekter
 
-- [ ] Lav et `migrate.sh` der opdaterer et eksisterende projekt til det nye workflow
-- [ ] Migrér `ipfs-apps` som første test
+- [x] `scripts/install-hooks.sh` fungerer som migrations-værktøj til eksisterende projekter
+- [x] Migrér `ipfs-apps` som første test ✅ 2026-06-04
 - [ ] Migrér resten af projekterne efterhånden
